@@ -1,0 +1,17 @@
+**
+
+!backend/
+!backend/app/
+!backend/app/**
+!backend/tests/
+!backend/tests/**
+!backend/requirements.txt
+!backend/requirements-dev.txt
+
+!app-cnsonlineprd/
+!app-cnsonlineprd/**
+
+**/.git/
+**/__pycache__/
+**/*.py[cod]
+**/.DS_Store

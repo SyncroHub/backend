@@ -1,0 +1,26 @@
+name: syncrohub
+
+services:
+  backend:
+    image: syncrohub-backend:local
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      target: runtime
+    environment:
+      APP_NAME: "${APP_NAME:-SyncroHUB API}"
+      APP_ENV: "${APP_ENV:-production}"
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    restart: unless-stopped
+
+  test:
+    image: syncrohub-backend-test:local
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+      target: test
+    profiles:
+      - test
