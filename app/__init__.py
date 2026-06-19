@@ -1,0 +1,2 @@
+"""Aplicação backend do SyncroHUB."""
+
