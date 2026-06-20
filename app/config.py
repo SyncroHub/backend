@@ -27,6 +27,26 @@ class Settings:
     totvs_proxy_url: str | None = getenv("TOTVS_PROXY_URL")
     totvs_proxy_api_key: str | None = getenv("TOTVS_PROXY_API_KEY")
     totvs_proxy_timeout: float = float(getenv("TOTVS_PROXY_TIMEOUT", "15"))
+    database_url: str = getenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://syncrohub:syncrohub@localhost:5432/syncrohub",
+    )
+    redis_url: str | None = getenv("REDIS_URL", "redis://localhost:6379/0")
+    jwt_secret: str = getenv(
+        "JWT_SECRET",
+        "development-only-change-this-32-byte-secret",
+    )
+    jwt_algorithm: str = "HS256"
+    access_token_minutes: int = int(getenv("ACCESS_TOKEN_MINUTES", "15"))
+    refresh_token_days: int = int(getenv("REFRESH_TOKEN_DAYS", "7"))
+    bcrypt_rounds: int = int(getenv("BCRYPT_ROUNDS", "12"))
+    auto_create_schema: bool = getenv("AUTO_CREATE_SCHEMA", "true").lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    login_rate_limit: int = int(getenv("LOGIN_RATE_LIMIT", "5"))
+    login_rate_window_seconds: int = int(getenv("LOGIN_RATE_WINDOW_SECONDS", "60"))
 
 
 settings = Settings()

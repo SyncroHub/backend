@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -11,6 +12,15 @@ from app.api.produtos import router as produtos_router
 from app.api.venda import router as venda_router
 from app.config import settings
 from app.data.gateway import DataSourceError
+from app.database import Base, engine
+from app.routers import access_types, auth, users
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    if settings.auto_create_schema:
+        Base.metadata.create_all(bind=engine)
+    yield
 
 
 def create_app() -> FastAPI:
@@ -19,8 +29,9 @@ def create_app() -> FastAPI:
 
     application = FastAPI(
         title=settings.app_name,
-        version="0.1.0",
+        version="1.0.0",
         description="Backend Python do SyncroHUB.",
+        lifespan=lifespan,
     )
 
     @application.exception_handler(DataSourceError)
@@ -55,6 +66,10 @@ def create_app() -> FastAPI:
             "application": settings.app_name,
             "environment": settings.app_env,
         }
+
+    application.include_router(auth.router)
+    application.include_router(users.router)
+    application.include_router(access_types.router)
 
     @application.get("/", include_in_schema=False)
     async def index() -> FileResponse:

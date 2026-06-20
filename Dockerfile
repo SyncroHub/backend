@@ -35,6 +35,8 @@ CMD ["pytest", "-q"]
 FROM base AS runtime
 
 COPY backend/app ./app
+COPY backend/alembic.ini ./
+COPY backend/migrations ./migrations
 COPY app-cnsonlineprd /app/app-cnsonlineprd
 
 USER syncrohub
