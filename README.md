@@ -93,3 +93,25 @@ uvicorn app.main:app --reload
 ```bash
 pytest
 ```
+
+## APIs da Visão Geral
+
+Os módulos Financeiro, Faturamento, Compras, Produtos, Pessoa e Venda estão
+disponíveis sob `/api/v1`. Os contratos completos, filtros e modelos de
+resposta podem ser consultados em `/docs`.
+
+Em desenvolvimento, `DATA_PROVIDER=demo` disponibiliza dados de demonstração.
+O Compose usa `totvs` por padrão e exige a URL do proxy interno:
+
+```env
+DATA_PROVIDER=totvs
+TOTVS_PROXY_URL=http://totvs-proxy/api/v1
+TOTVS_PROXY_API_KEY=
+TOTVS_PROXY_TIMEOUT=15
+```
+
+O proxy deve expor recursos normalizados com os mesmos nomes usados pelas
+rotas, por exemplo `financeiro/contas-pagar`, `faturamento`, `compras`,
+`produtos`, `pessoa` e `venda/vendas`. A resposta pode ser uma lista JSON ou
+um objeto no formato `{"items": [...]}`. Credenciais OAuth da Totvs permanecem
+exclusivamente no serviço de proxy.

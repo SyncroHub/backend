@@ -37,6 +37,10 @@ services:
       APP_ENV: "${APP_ENV:-production}"
       APP_HOST: 0.0.0.0
       APP_PORT: 8000
+      DATA_PROVIDER: "${DATA_PROVIDER:-totvs}"
+      TOTVS_PROXY_URL: "${TOTVS_PROXY_URL:-}"
+      TOTVS_PROXY_API_KEY: "${TOTVS_PROXY_API_KEY:-}"
+      TOTVS_PROXY_TIMEOUT: "${TOTVS_PROXY_TIMEOUT:-15}"
       DATABASE_URL: "postgresql+psycopg://syncrohub:${POSTGRES_PASSWORD:-syncrohub}@postgres:5432/syncrohub"
       REDIS_URL: "redis://redis:6379/0"
       JWT_SECRET: "${JWT_SECRET:?JWT_SECRET deve ser definido}"
