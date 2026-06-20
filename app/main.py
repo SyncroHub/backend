@@ -1,22 +1,37 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.compras import router as compras_router
+from app.api.faturamento import router as faturamento_router
+from app.api.financeiro import router as financeiro_router
+from app.api.pessoa import router as pessoa_router
+from app.api.produtos import router as produtos_router
+from app.api.venda import router as venda_router
 from app.config import settings
+from app.data.gateway import DataSourceError
 
 
 def create_app() -> FastAPI:
     if not settings.frontend_dir.is_dir():
-        raise RuntimeError(
-            f"Frontend não encontrado em: {settings.frontend_dir}"
-        )
+        raise RuntimeError(f"Frontend não encontrado em: {settings.frontend_dir}")
 
     application = FastAPI(
         title=settings.app_name,
         version="0.1.0",
         description="Backend Python do SyncroHUB.",
     )
+
+    @application.exception_handler(DataSourceError)
+    async def data_source_error(
+        request: Request,
+        exc: DataSourceError,
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=502,
+            content={"detail": "Provedor de dados indisponível"},
+        )
 
     application.add_middleware(
         CORSMiddleware,
@@ -25,6 +40,13 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    application.include_router(financeiro_router)
+    application.include_router(faturamento_router)
+    application.include_router(compras_router)
+    application.include_router(produtos_router)
+    application.include_router(pessoa_router)
+    application.include_router(venda_router)
 
     @application.get("/api/health", tags=["infra"])
     async def health() -> dict[str, str]:
@@ -60,4 +82,3 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-

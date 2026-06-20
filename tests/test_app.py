@@ -25,4 +25,3 @@ def test_static_asset_is_served() -> None:
 
     assert response.status_code == 200
     assert "text/css" in response.headers["content-type"]
-

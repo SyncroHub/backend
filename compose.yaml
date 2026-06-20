@@ -12,6 +12,10 @@ services:
       APP_ENV: "${APP_ENV:-production}"
       APP_HOST: 0.0.0.0
       APP_PORT: 8000
+      DATA_PROVIDER: "${DATA_PROVIDER:-totvs}"
+      TOTVS_PROXY_URL: "${TOTVS_PROXY_URL:-}"
+      TOTVS_PROXY_API_KEY: "${TOTVS_PROXY_API_KEY:-}"
+      TOTVS_PROXY_TIMEOUT: "${TOTVS_PROXY_TIMEOUT:-15}"
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     restart: unless-stopped
