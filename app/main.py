@@ -1,21 +1,31 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
+from app.database import Base, engine
+from app.routers import access_types, auth, users
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    if settings.auto_create_schema:
+        Base.metadata.create_all(bind=engine)
+    yield
 
 
 def create_app() -> FastAPI:
     if not settings.frontend_dir.is_dir():
-        raise RuntimeError(
-            f"Frontend não encontrado em: {settings.frontend_dir}"
-        )
+        raise RuntimeError(f"Frontend não encontrado em: {settings.frontend_dir}")
 
     application = FastAPI(
         title=settings.app_name,
-        version="0.1.0",
+        version="1.0.0",
         description="Backend Python do SyncroHUB.",
+        lifespan=lifespan,
     )
 
     application.add_middleware(
@@ -33,6 +43,10 @@ def create_app() -> FastAPI:
             "application": settings.app_name,
             "environment": settings.app_env,
         }
+
+    application.include_router(auth.router)
+    application.include_router(users.router)
+    application.include_router(access_types.router)
 
     @application.get("/", include_in_schema=False)
     async def index() -> FileResponse:
@@ -60,4 +74,3 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-

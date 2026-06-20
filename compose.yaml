@@ -1,6 +1,31 @@
 name: syncrohub
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: syncrohub
+      POSTGRES_USER: syncrohub
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-syncrohub}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U syncrohub -d syncrohub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   backend:
     image: syncrohub-backend:local
     build:
@@ -12,6 +37,15 @@ services:
       APP_ENV: "${APP_ENV:-production}"
       APP_HOST: 0.0.0.0
       APP_PORT: 8000
+      DATABASE_URL: "postgresql+psycopg://syncrohub:${POSTGRES_PASSWORD:-syncrohub}@postgres:5432/syncrohub"
+      REDIS_URL: "redis://redis:6379/0"
+      JWT_SECRET: "${JWT_SECRET:?JWT_SECRET deve ser definido}"
+      AUTO_CREATE_SCHEMA: "${AUTO_CREATE_SCHEMA:-false}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     restart: unless-stopped
@@ -24,3 +58,7 @@ services:
       target: test
     profiles:
       - test
+
+volumes:
+  postgres-data:
+  redis-data:
